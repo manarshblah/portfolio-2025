@@ -10,18 +10,38 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
         
+        /* ==========================================================================
+           تحكم بالخلفيات والألوان هنا (تعديل الألوان من مكان واحد)
+           ========================================================================== */
         :root { 
-            --bg-color: #f8fafc; 
+            --bg-color: rgba(254, 240, 138, 0.4); 
             --text-color: #0f172a; 
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(148, 163, 184, 0.2);
+            --glass-bg:#f8fafc ; /* خلفية زجاجية مائلة للون الأساسي في اللايت مود */
+            --glass-border: rgba(234, 179, 8, 0.4);
+            
+            /* ألوان الموقع الأساسية */
+            --primary-color: #eab308;        /* اللون الأصفر الأساسي */
+            --primary-hover: #ca8a04;        /* اللون عند الهوفر */
+            --primary-light: rgba(234, 179, 8, 0.15); 
+            --badge-text: #1e293b;
         }
         .dark { 
             --bg-color: #020617; 
             --text-color: #f1f5f9; 
             --glass-bg: rgba(15, 23, 42, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(234, 179, 8, 0.15);
+            
+            --primary-color: #eab308;
+            --primary-hover: #facc15;
+            --primary-light: rgba(234, 179, 8, 0.1);
+            --badge-text: #020617;
         }
+
+        /* ربط المتغيرات بالخصائص */
+        .theme-primary-bg { background-color: var(--primary-color) !important; }
+        .theme-primary-text { color: var(--primary-color) !important; }
+        .theme-primary-border { border-color: var(--primary-color) !important; }
+        .theme-primary-hover:hover { background-color: var(--primary-hover) !important; }
 
         body { 
             font-family: 'Poppins', sans-serif; 
@@ -38,28 +58,20 @@
             backdrop-filter: blur(16px) saturate(180%);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
+            transition: all 0.3s ease;
         }
 
-        .typewriter::after { content: "|"; animation: blink 0.7s infinite; color: #3b82f6; }
+        .typewriter::after { content: "|"; animation: blink 0.7s infinite; color: var(--primary-color); }
         @keyframes blink { 50% { opacity: 0; } }
 
         html { scroll-behavior: smooth; }
 
-        .filter-btn.active {
-            background: #3b82f6 !important;
-            color: white !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        }
-
         .nav-link { position: relative; cursor: pointer; }
         .nav-link::after {
             content: ''; position: absolute; width: 0; height: 2px;
-            bottom: -5px; left: 0; background: #3b82f6; transition: width 0.3s;
+            bottom: -5px; left: 0; background: var(--primary-color); transition: width 0.3s;
         }
         .nav-link:hover::after { width: 100%; }
-        
-        .dark .devicon-nextjs-original { color: white !important; }
 
         @keyframes marquee {
             0% { transform: translateX(0); }
@@ -72,21 +84,31 @@
         }
         .marquee-container:hover { animation-play-state: paused; }
 
-        /* أضف هذا في قسم style */
-.reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease-out;
-}
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
-}
+        /* Skills Autoplay Slider */
+        @keyframes slideSkills {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .skills-slider-track {
+            display: flex;
+            width: fit-content;
+            animation: slideSkills 20s linear infinite;
+        }
+        .skills-slider-track:hover { animation-play-state: paused; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
         
         #chat-window.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Sidebar Style */
         #mobile-menu {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
@@ -95,10 +117,40 @@
             transform: translateX(0);
         }
 
-        /* Timeline Button Active */
         .timeline-btn.active {
-            border-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary-color) !important;
+            background: var(--primary-light) !important;
+        }
+
+        /* Filter buttons active state */
+        .filter-btn.active {
+            background-color: var(--primary-color) !important;
+            color: #020617 !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.3);
+        }
+
+        /* Tooltip style */
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .group:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Project card filtering animation */
+        .project-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project-card.hidden-card {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+            position: absolute;
+            visibility: hidden;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -115,15 +167,18 @@
         <a onclick="scrollToSection('contact'); toggleMobileMenu()" class="nav-link text-xl font-bold">Contact</a>
     </div>
 
-    <div class="fixed bottom-6 right-6 z-[100]">
-        <div id="chat-window" class="hidden mb-4 w-72 md:w-80 glass-card p-5 shadow-2xl border-blue-500/30">
-            <div class="text-sm bg-blue-500/10 p-3 rounded-2xl rounded-br-none mb-3">
-                أهلاً بك! ارسل لي رايك او تقييمك للخدمات 💙
+    <div class="fixed bottom-6 right-6 z-[100] group flex flex-col items-end">
+        <span class="tooltip mb-2 px-3 py-1 text-xs font-semibold text-slate-900 theme-primary-bg rounded-lg shadow-lg whitespace-nowrap">
+            اضغط لإضافة تقييمك ⭐
+        </span>
+        <div id="chat-window" class="hidden mb-4 w-72 md:w-80 glass-card p-5 shadow-2xl">
+            <div class="text-sm bg-white/10 p-3 rounded-2xl rounded-br-none mb-3">
+                أهلاً بك! ارسل لي رايك او تقييمك للخدمات 💛
             </div>
-            <textarea id="review-text" class="w-full p-3 rounded-xl bg-white/5 border border-slate-400/20 outline-none focus:border-blue-500 text-sm h-20 resize-none mb-2" placeholder="اكتب هنا..."></textarea>
-            <button onclick="addReview()" class="w-full py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">إرسال</button>
+            <textarea id="review-text" class="w-full p-3 rounded-xl bg-white/5 border border-slate-400/20 outline-none focus:theme-primary-border text-sm h-20 resize-none mb-2" placeholder="اكتب هنا..."></textarea>
+            <button onclick="addReview()" class="w-full py-2 theme-primary-bg text-slate-950 rounded-xl font-bold theme-primary-hover transition">إرسال</button>
         </div>
-        <button onclick="toggleChat()" class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition active:scale-95 shadow-blue-500/40">
+        <button onclick="toggleChat()" class="w-16 h-16 theme-primary-bg text-slate-950 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition active:scale-95 shadow-yellow-500/40">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
@@ -132,7 +187,7 @@
 
     <nav class="fixed w-full z-50 p-4 md:p-6">
         <div class="container mx-auto flex justify-between items-center glass-card px-6 py-3">
-            <h1 class="text-2xl font-extrabold tracking-tighter text-blue-500">MANAR.</h1>
+            <h1 class="text-2xl font-extrabold tracking-tighter theme-primary-text">MANAR.</h1>
             <div class="hidden md:flex gap-8 font-medium">
                 <a onclick="scrollToSection('hero')" class="nav-link">Home</a>
                 <a onclick="scrollToSection('about')" class="nav-link">About</a>
@@ -141,34 +196,40 @@
                 <a onclick="scrollToSection('contact')" class="nav-link">Contact</a>
             </div>
             <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="w-10 h-10 flex items-center justify-center rounded-full glass-card hover:scale-110 transition">☀️</button>                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">☰</button>
+                <button id="theme-toggle" class="w-10 h-10 flex items-center justify-center rounded-full glass-card hover:scale-110 transition">☀️</button>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">☰</button>
             </div>
         </div>
     </nav>
 
     <main class="relative z-10 container mx-auto px-6">
         
-        <section id="hero" class="min-h-screen flex flex-col md:flex-row items-center justify-center gap-12 pt-24">
-            <div class="flex-1 space-y-6 text-center md:text-left reveal">
-                <h2 class="text-5xl md:text-7xl font-extrabold leading-tight">Hi, I'm <span class="text-blue-500">Manar</span></h2>
-                <div class="text-2xl md:text-3xl font-medium h-8">
-                    <span id="typewriter" class="typewriter text-blue-400"></span>
-                </div>
-                <p class="text-lg opacity-80 max-w-lg mx-auto md:mx-0">
-                    Front-End Developer specialized in React, Next.js and creative web solutions. I turn complex ideas into elegant digital experiences.
-                </p>
-                <div class="flex gap-4 justify-center md:justify-start">
-                    <button onclick="scrollToSection('contact')" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition">Hire Me</button>
-                    <button onclick="scrollToSection('projects')" class="glass-card px-8 py-3 rounded-full font-bold hover:bg-blue-500/10 transition">View Work</button>
+        <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center pt-32 pb-16 max-w-3xl mx-auto space-y-8 reveal">
+            <div class="relative w-48 h-48 md:w-56 md:h-56">
+                <div class="absolute inset-0 theme-primary-bg opacity-20 blur-3xl rounded-full"></div>
+                <div class="relative w-full h-full rounded-full border-4 theme-primary-border overflow-hidden shadow-2xl p-1 bg-slate-900">
+                    <img src="about-image.webp" alt="Manar Profile" class="w-full h-full object-cover rounded-full">
                 </div>
             </div>
-            <div class="flex-1 flex justify-center reveal">
-                <div class="relative w-72 h-72 md:w-96 md:h-96">
-                    <div class="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
-                    <div class="relative w-full h-full rounded-3xl border-2 border-blue-400/30 overflow-hidden glass-card p-2 shadow-2xl">
-                        <img src="about-image.webp" alt="Manar Anime Dev" class="w-full h-full object-cover rounded-2xl">
-                    </div>
+
+            <div class="space-y-4">
+                <h2 class="text-5xl md:text-6xl font-extrabold leading-tight">Hi, I'm <span class="theme-primary-text">Manar</span></h2>
+                <div class="text-2xl md:text-3xl font-medium h-8">
+                    <span id="typewriter" class="typewriter font-semibold theme-primary-text"></span>
                 </div>
+                <p class="text-base md:text-lg opacity-80 max-w-xl mx-auto leading-relaxed">
+                    Front-End Developer specialized in React, Next.js and creative web solutions. I turn complex ideas into elegant digital experiences.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="scrollToSection('contact')" class="theme-primary-bg text-slate-950 px-8 py-3 rounded-full font-bold theme-primary-hover shadow-lg shadow-yellow-500/20 transition duration-300">Hire Me</button>
+                <a href="Manar_Shblah_cv.pdf" download="Manar_CV.pdf" class="glass-card px-8 py-3 rounded-full font-bold hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 theme-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download CV
+                </a>
             </div>
         </section>
 
@@ -180,31 +241,27 @@
             
             <div class="flex flex-col md:flex-row gap-12 items-start justify-center">
                 <div class="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-64 reveal">
-                    <button onclick="showJourney(0, this)" class=" timeline-btn active p-4 glass-card text-left transition-all border-l-4 border-transparent hover:border-blue-500">
-                        <span class="block text-xs text-blue-500 font-bold">2019 - 2024</span>
+                    <button onclick="showJourney(0, this)" class="timeline-btn active p-4 glass-card text-left transition-all border-l-4 border-transparent hover:theme-primary-border shadow-lg">
+                        <span class="block text-xs theme-primary-text font-bold">2019 - 2024</span>
                         <span class="font-bold">The Beginning</span>
                     </button>
-                    <button onclick="showJourney(1, this)" class=" timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:border-blue-500">
-                        <span class="block text-xs text-blue-500 font-bold">Since 2020</span>
+                    <button onclick="showJourney(1, this)" class="timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:theme-primary-border shadow-lg">
+                        <span class="block text-xs theme-primary-text font-bold">Since 2020</span>
                         <span class="font-bold">Launching as a Freelancer</span>
                     </button>
-                    <button onclick="showJourney(2, this)" class=" timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:border-blue-500">
-                        <span class="block text-xs text-blue-500 font-bold">2022 - 2023</span>
-                        <span class="font-bold">Institutional Experience at Start Tech</span>
+                    <button onclick="showJourney(2, this)" class="timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:theme-primary-border shadow-lg">
+                        <span class="block text-xs theme-primary-text font-bold">2022 - 2023</span>
+                        <span class="font-bold">Institutional Experience</span>
                     </button>
-                    <button onclick="showJourney(3, this)" class=" timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:border-blue-500">
-                        <span class="block text-xs text-blue-500 font-bold">Freelance</span>
-                        <span class="font-bold">WordPress Development Specialist</span>
-                    </button>
-                    <button onclick="showJourney(4, this)" class=" timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:border-blue-500">
-                        <span class="block text-xs text-blue-500 font-bold">April 2025 - Present</span>
-                        <span class="font-bold">Current Role at iWings</span>
+                    <button onclick="showJourney(3, this)" class="timeline-btn p-4 glass-card text-left transition-all border-l-4 border-transparent hover:theme-primary-border shadow-lg">
+                        <span class="block text-xs theme-primary-text font-bold">Freelance</span>
+                        <span class="font-bold">WordPress Specialist</span>
                     </button>
                 </div>
 
-                <div id="journey-details" class="flex-1 glass-card p-8 min-h-[450px] flex flex-col justify-center">
-                    <h4 id="journey-title" class="text-3xl font-bold text-blue-500 mb-2">The Beginning</h4>
-                    <p id="journey-period" class="text-sm opacity-50 mb-6">Period: 2021 - 2022</p>
+                <div id="journey-details" class="flex-1 glass-card p-8 min-h-[350px] flex flex-col justify-center shadow-2xl transition-all duration-300">
+                    <h4 id="journey-title" class="text-3xl font-bold theme-primary-text mb-2">The Beginning</h4>
+                    <p id="journey-period" class="text-sm opacity-50 mb-6">Period: 2019 - 2024</p>
                     <p id="journey-desc" class="text-lg leading-relaxed">
                         Started my journey in web development focusing on HTML, CSS, and basic JavaScript. I fell in love with creating visual interfaces from scratch.
                     </p>
@@ -212,35 +269,49 @@
             </div>
         </section>
 
-        <section id="skills" class="py-24">
+        <section id="skills" class="py-24 overflow-hidden">
             <div class="text-center mb-16 reveal">
                 <h3 class="text-4xl font-bold mb-4">Technical Arsenal</h3>
                 <p class="opacity-60 italic">"Clean code is not written, it's crafted."</p>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="skills-grid"></div>
+            
+            <div class="relative w-full flex items-center mask-image">
+                <div class="skills-slider-track gap-6 py-4" id="skills-slider"></div>
+            </div>
         </section>
 
         <section id="projects" class="py-24 reveal">
-            <h3 class="text-4xl font-bold mb-10 text-center">Featured Projects</h3>
-            <div class="flex justify-center gap-3 mb-12 flex-wrap" id="filter-box">
-                <button onclick="filterProjects('all', this)" class="filter-btn active px-6 py-2 rounded-xl glass-card transition font-medium">All</button>
-                <button onclick="filterProjects('react', this)" class="filter-btn px-6 py-2 rounded-xl glass-card transition font-medium">React</button>
-                <button onclick="filterProjects('next', this)" class="filter-btn px-6 py-2 rounded-xl glass-card transition font-medium">Next.js</button>
-                <button onclick="filterProjects('wordpress', this)" class="filter-btn px-6 py-2 rounded-xl glass-card transition font-medium">WordPress</button>
+            <div class="text-center mb-10">
+                <h3 class="text-4xl font-bold mb-4">Featured Projects</h3>
+                <p class="opacity-60 italic">A curated showcase of production-ready web platforms</p>
             </div>
-            <div class="grid md:grid-cols-3 gap-8" id="projects-grid"></div>
+
+            <div class="flex flex-wrap justify-center items-center gap-3 mb-12 max-w-2xl mx-auto px-4">
+                <button onclick="filterProjects('all', this)" class="filter-btn active px-6 py-2.5 rounded-xl border border-slate-400/20 font-semibold text-sm transition-all duration-300 glass-card hover:theme-primary-border">
+                    ⚡ All Projects
+                </button>
+                <button onclick="filterProjects('react', this)" class="filter-btn px-6 py-2.5 rounded-xl border border-slate-400/20 font-semibold text-sm transition-all duration-300 glass-card hover:theme-primary-border">
+                    ⚛️ React JS
+                </button>
+                <button onclick="filterProjects('next', this)" class="filter-btn px-6 py-2.5 rounded-xl border border-slate-400/20 font-semibold text-sm transition-all duration-300 glass-card hover:theme-primary-border">
+                    ▲ Next JS
+                </button>
+                <button onclick="filterProjects('wordpress', this)" class="filter-btn px-6 py-2.5 rounded-xl border border-slate-400/20 font-semibold text-sm transition-all duration-300 glass-card hover:theme-primary-border">
+                    📝 WordPress
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 relative min-h-[400px]" id="projects-grid"></div>
         </section>
 
         <section id="reviews-section" class="py-10 mb-20 overflow-hidden reveal">
             <h3 class="text-2xl font-bold mb-8 text-center opacity-50 uppercase tracking-widest">Reviews</h3>
             <div class="relative flex items-center">
                 <div id="marquee" class="marquee-container gap-6">
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Excellent work!</div>
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Very professional developer.</div>
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Creative and fast delivery.</div>
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Clean code and great UI.</div>
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Excellent work!</div>
-                    <div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ Very professional developer.</div>
+                    <div class="glass-card px-8 py-4 whitespace-nowrap font-medium">⭐ Excellent work!</div>
+                    <div class="glass-card px-8 py-4 whitespace-nowrap font-medium">⭐ Very professional developer.</div>
+                    <div class="glass-card px-8 py-4 whitespace-nowrap font-medium">⭐ Creative and fast delivery.</div>
+                    <div class="glass-card px-8 py-4 whitespace-nowrap font-medium">⭐ Clean code and great UI.</div>
                 </div>
             </div>
         </section>
@@ -249,10 +320,10 @@
             <div class="glass-card p-8 md:p-12 max-w-3xl mx-auto shadow-2xl">
                 <h3 class="text-3xl font-bold mb-8 text-center">Let's Build Something Great</h3>
                 <form id="contact-form" action="https://formspree.io/f/maqywwra" method="POST" class="grid md:grid-cols-2 gap-6">
-                    <input type="text" name="name" required placeholder="Name [cite: 1]" class="w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:border-blue-500 transition">
-                    <input type="email" name="email" required placeholder="Email " class="w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:border-blue-500 transition">
-                    <textarea name="message" required placeholder="Your Message" rows="4" class="md:col-span-2 w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:border-blue-500 transition"></textarea>
-                    <button type="submit" id="submit-btn" class="md:col-span-2 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <input type="text" name="name" required placeholder="Name" class="w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:theme-primary-border transition">
+                    <input type="email" name="email" required placeholder="Email" class="w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:theme-primary-border transition">
+                    <textarea name="message" required placeholder="Your Message" rows="4" class="md:col-span-2 w-full p-4 rounded-2xl bg-white/5 border border-slate-400/20 outline-none focus:theme-primary-border transition"></textarea>
+                    <button type="submit" id="submit-btn" class="md:col-span-2 py-4 theme-primary-bg text-slate-950 rounded-2xl font-bold theme-primary-hover transition flex items-center justify-center gap-2">
                         <span id="btn-text">Send Message</span>
                     </button>
                 </form>
@@ -266,88 +337,133 @@
 
     <script>
         // --- Scroll Reveal Logic ---
-const observerOptions = { threshold: 0.15 };
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('active');
+        const observerOptions = { threshold: 0.15 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        function updateObservers() {
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
-    });
-}, observerOptions);
 
-function updateObservers() {
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-}
+        // Data Definitions
+        const SKILLS = [
+            { name: "React JS", icon: "devicon-react-original" },
+            { name: "Next JS", icon: "devicon-nextjs-plain" },
+            { name: "WordPress", icon: "devicon-wordpress-plain" },
+            { name: "TypeScript", icon: "devicon-typescript-plain" },
+            { name: "Tailwind", icon: "devicon-tailwindcss-plain" },
+            { name: "JavaScript", icon: "devicon-javascript-plain" },
+            { name: "CSS3", icon: "devicon-css3-plain" },
+            { name: "Sass", icon: "devicon-sass-original" }
+        ];
 
-// دالة لتشغيل كل شيء بعد تحميل الصفحة
-window.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. رندر المهارات
-    const skillsGrid = document.getElementById('skills-grid');
-    if (skillsGrid) {
-        skillsGrid.innerHTML = ''; // تنظيف المحتوى أولاً
-        SKILLS.forEach((s, index) => {
-            skillsGrid.innerHTML += `
-                <div class="glass-card p-6 flex flex-col items-center gap-4 hover:scale-105 transition-all duration-300 shadow-lg reveal" 
-                     style="border-bottom: 4px solid ${s.color}; transition-delay: ${index * 100}ms">
-                    <i class="${s.icon} text-5xl" style="color: ${s.color}"></i>
-                    <span class="font-bold">${s.name}</span>
-                </div>`;
+        const PROJECTS = [
+            { name: "TenzesGame", type: "react", img: "4.png", link:"https://66f03c171b621dd28ca7c914--darling-selkie-b855aa.netlify.app/" },
+            { name: "Builder API", type: "next", img: "6.png", link:"https://api-creator.netlify.app/" },
+            { name: "Weather Application", type: "react", img: "5.png", link:"https://manarshblah.github.io/weatherApp-React/" },
+            { name: "turkfood", type: "wordpress", img: "11.png", link:"http://turkfood.se" },
+            { name: "vipbarbershop", type: "wordpress", img: "10.png", link:"http://vipbarbershop.se" },
+            { name: "valfrimobil", type: "wordpress", img: "12.png", link:"https://valfrimobil.se/" },
+            { name: "compuphoneFix", type: "wordpress", img: "13.png", link:"https://cpfix.se/" },
+            { name: "generalmedical", type: "wordpress", img: "7.png", link:"http://generalmedical.net" },
+            { name: "smartlcd", type: "wordpress", img: "8.png", link:"http://smartlcd.se" },
+            { name: "lundafood", type: "wordpress", img: "9.png", link:"http://lundafood.se" },
+            { name: "mahli360", type: "wordpress", img: "14.png", link:"https://mahli360.ae/" },
+            { name: "coreconsulting", type: "wordpress", img: "15.png", link:"https://coreconsulting.group/" },
+            { name: "toyoung", type: "wordpress", img: "16.png", link:"https://toyoung-medimplants.com/" },
+            { name: "kurdish Drink", type: "wordpress", img: "17.png", link:"https://kurdish.iwings-digital.com/" },
+            { name: "kobani Film", type: "wordpress", img: "18.png", link:"https://kobani-film.com/" },
+            { name: "Sakura Original", type: "wordpress", img: "19.png", link:"https://sakuraoriginal.com/" },
+            { name: "Kafaat", type: "wordpress", img: "20.png", link:"https://kafaat.iwings-digital.com/" },
+            { name: "Al-malika", type: "wordpress", img: "21.png", link:"https://al-malika.com/" },
+            { name: "mollstrands", type: "wordpress", img: "22.png", link:"https://mollstrands.se/" },
+            { name: "yhbyggab", type: "wordpress", img: "23.png", link:"https://yhbyggab.se/" },
+
+
+        ];
+
+        const JOURNEY_DATA = [
+            { title: "The Beginning", period: "2019 - 2024", desc: "My journey in the world of technology began with a solid academic foundation at Al-Baath University, where I earned my degree in IT Engineering. During these years, I mastered the fundamentals of software engineering, code structuring, and problem-solving workflows." },
+            { title: "Launching as a Freelancer", period: "Since 2020", desc: "In 2020, I started my professional career as a Freelance Front-End Developer. I focused on delivering customized web interfaces for a variety of clients, prioritizing clean, scalable code and user-friendly designs that transform creative visions into interactive digital realities." },
+            { title: "Institutional Experience", period: "2022 - 2023", desc: "I joined Start Tech as a Front-End Developer, where I sharpened my skills in a collaborative environment. I worked closely with designers and backend developers to translate complex prototypes into high-performance web pages while identifying and resolving UI/UX issues to meet business requirements." },
+            { title: "WordPress Specialist", period: "Freelance", desc: "Expanding my technical arsenal, I specialized as a Freelance WordPress Developer. This phase involved building and managing robust websites using custom themes and plugins, ensuring each project was optimized for speed, security, and a seamless user experience." }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Render Skills Slider
+            const skillsSlider = document.getElementById('skills-slider');
+            if (skillsSlider) {
+                let sliderContent = "";
+                SKILLS.forEach(s => {
+                    sliderContent += `
+                        <div class="glass-card p-6 flex flex-col items-center justify-center gap-4 min-w-[160px] h-[160px] shadow-lg hover:scale-105 transition-all duration-300" style="border-bottom: 4px solid var(--primary-color)">
+                            <i class="${s.icon} text-5xl ${s.name === 'Next JS' ? 'text-slate-900 dark:text-white' : 'theme-primary-text'}"></i>
+                            <span class="font-bold text-sm">${s.name}</span>
+                        </div>`;
+                });
+                skillsSlider.innerHTML = sliderContent + sliderContent;
+            }
+
+            // 2. Render Projects in DOM
+            const grid = document.getElementById('projects-grid');
+            if(grid) {
+                PROJECTS.forEach((p, index) => {
+                    const badgeColor = p.type === 'next' ? 'bg-slate-900 text-white dark:bg-white dark:text-black' : p.type === 'react' ? 'bg-sky-500 text-white' : 'theme-primary-bg text-slate-900';
+                    grid.innerHTML += `
+                        <div class="glass-card overflow-hidden group hover:-translate-y-3 transition-all duration-500 shadow-lg relative project-card reveal" data-type="${p.type}" style="transition-delay: ${index * 30}ms">
+                            <div class="relative overflow-hidden h-52">
+                                <img src="${p.img}" class="h-full w-full object-cover group-hover:scale-110 transition duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                    <a href="${p.link}" target="_blank" class="text-xs theme-primary-bg text-slate-900 font-bold px-4 py-2 rounded-lg theme-primary-hover transition flex items-center gap-1">
+                                        Visit Website 
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <span class="text-xs font-extrabold uppercase px-2 py-1 rounded ${badgeColor}">${p.type}</span>
+                                <h4 class="text-xl font-bold tracking-tight pt-1">${p.name}</h4>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            document.querySelectorAll('section').forEach(section => {
+                if(!section.classList.contains('reveal')) section.classList.add('reveal');
+            });
+
+            updateObservers();
         });
-    }
 
-    // 2. تشغيل الفلتر لأول مرة لعرض المشاريع
-    filterProjects('all', document.querySelector('.filter-btn'));
+        // --- Projects Filtering System ---
+        function filterProjects(type, button) {
+            // 1. Update Active Class on Buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
-    // 3. مراقبة الأقسام الثابتة
-    document.querySelectorAll('section').forEach(section => {
-        section.classList.add('reveal');
-    });
+            // 2. Animate and Filter Cards
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                const cardType = card.getAttribute('data-type');
+                if (type === 'all' || cardType === type) {
+                    card.classList.remove('hidden-card');
+                } else {
+                    card.classList.add('hidden-card');
+                }
+            });
+        }
 
-    // 4. تفعيل المراقبة
-    updateObservers();
-});
-
-// تعديل دالة فلترة المشاريع لتتوافق مع التحديث
-function filterProjects(type, btn) {
-    const grid = document.getElementById('projects-grid');
-    if (!grid) return;
-
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-
-    grid.innerHTML = '';
-    const filtered = PROJECTS.filter(p => type === 'all' || p.type === type);
-    
-    filtered.forEach((p, index) => {
-        grid.innerHTML += `
-            <div class="glass-card overflow-hidden group hover:-translate-y-2 transition duration-500 shadow-xl reveal"
-                 style="transition-delay: ${index * 100}ms">
-                <img src="${p.img}" class="h-48 w-full object-cover group-hover:scale-110 transition duration-700">
-                <div class="p-6">
-                    <span class="text-blue-500 text-xs font-bold uppercase">${p.type}</span>
-                    <h4 class="text-xl font-bold">${p.name}</h4>
-                </div>
-            </div>`;
-    });
-    
-    // مهم جداً: إعادة تفعيل المراقبة للعناصر الجديدة بعد الفلترة
-    setTimeout(updateObservers, 100); 
-}
         // --- Mobile Menu ---
         function toggleMobileMenu() {
             document.getElementById('mobile-menu').classList.toggle('active');
         }
 
         // --- Journey Functions ---
-        const JOURNEY_DATA = [
-            { title: "The Beginning", period: "2019 - 2024", desc: "My journey in the world of technology began with a solid academic foundation at Al-Baath University, where I earned my degree in IT Engineering. During these years, I mastered the fundamentals of software engineering, code structuring, and problem-solving workflows." },
-            { title: "Launching as a Freelancer", period: "Since 2020", desc: "In 2020, I started my professional career as a Freelance Front-End Developer. I focused on delivering customized web interfaces for a variety of clients, prioritizing clean, scalable code and user-friendly designs that transform creative visions into interactive digital realities." },
-            { title: "Institutional Experience at Start Tech", period: "2022 - 2023", desc: "I joined Start Tech as a Front-End Developer, where I sharpened my skills in a collaborative environment. I worked closely with designers and backend developers to translate complex prototypes into high-performance web pages while identifying and resolving UI/UX issues to meet business requirements." },
-            { title: "WordPress Development Specialist", period: "Freelance", desc: "Expanding my technical arsenal, I specialized as a Freelance WordPress Developer. This phase involved building and managing robust websites using custom themes and plugins, ensuring each project was optimized for speed, security, and a seamless user experience." },
-            { title: "Current Role at iWings", period: "April 2025 - Present", desc: "Currently, I serve as a WordPress Developer and Site Maintenance Specialist at iWings, working remotely. My responsibilities include the continuous monitoring of websites, troubleshooting technical errors, and ensuring optimal performance and stability across all digital platforms managed by the company." }
-        ];
-
         function showJourney(index, btn) {
             document.querySelectorAll('.timeline-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -373,7 +489,7 @@ function filterProjects(type, btn) {
             const text = document.getElementById('review-text').value;
             if(text.trim() !== "") {
                 const marquee = document.getElementById('marquee');
-                const newReview = `<div class="glass-card px-8 py-4 whitespace-nowrap border-blue-500/20 font-medium">⭐ ${text}</div>`;
+                const newReview = `<div class="glass-card px-8 py-4 whitespace-nowrap font-medium">⭐ ${text}</div>`;
                 marquee.innerHTML = newReview + marquee.innerHTML;
                 document.getElementById('review-text').value = "";
                 toggleChat();
@@ -381,7 +497,6 @@ function filterProjects(type, btn) {
             }
         }
 
-        // Smooth Scroll Function
         function scrollToSection(id) {
             const element = document.getElementById(id);
             if(!element) return;
@@ -396,35 +511,6 @@ function filterProjects(type, btn) {
                 behavior: 'smooth'
             });
         }
-
-        // Data
-        const SKILLS = [
-            { name: "React JS", icon: "devicon-react-original", color: "#61DAFB" },
-            { name: "Next JS", icon: "devicon-nextjs-original", color: "#000000" },
-            { name: "WordPress", icon: "devicon-wordpress-plain", color: "#21759b" },
-            { name: "TypeScript", icon: "devicon-typescript-plain", color: "#3178C6" },
-            { name: "Tailwind", icon: "devicon-tailwindcss-plain", color: "#06B6D4" },
-            { name: "JavaScript", icon: "devicon-javascript-plain", color: "#F7DF1E" },
-            { name: "CSS3", icon: "devicon-css3-plain", color: "#1572B6" },
-            { name: "Sass", icon: "devicon-sass-original", color: "#CC6699" }
-        ];
-
-        const PROJECTS = [
-            { name: "TenzesGame", type: "react", img: "4.png", link:"https://66f03c171b621dd28ca7c914--darling-selkie-b855aa.netlify.app/" },
-            { name: "Builder API", type: "next", img: "6.png", link:"https://api-creator.netlify.app/" },
-            { name: "ًWeather Application", type: "react", img: "5.png", link:"https://manarshblah.github.io/weatherApp-React/" },
-            { name: "turkfood", type: "wordpress", img: "11.png", link:"http://turkfood.se" },
-            { name: "vipbarbershop", type: "wordpress", img: "10.png", link:"http://vipbarbershop.se" },
-            { name: "valfrimobil", type: "wordpress", img: "12.png", link:"https://valfrimobil.se/" },
-            { name: "compuphoneFix", type: "wordpress", img: "13.png", link:"https://cpfix.se/" },
-            { name: "ًgeneralmedical", type: "wordpress", img: "7.png", link:"http://generalmedical.net" },
-            { name: "ًsmartlcd", type: "wordpress", img: "8.png", link:"http://smartlcd.se" },
-            { name: "lundafood", type: "wordpress", img: "9.png", link:"http://lundafood.se" },
-            { name: "mahli360", type: "wordpress", img: "14.png", link:"https://mahli360.ae/" },
-            { name: "coreconsulting", type: "wordpress", img: "15.png", link:"https://coreconsulting.group/" },
-            { name: "toyoung", type: "wordpress", img: "16.png", link:"https://toyoung-medimplants.com/" },
-            { name: "kurdish Drink", type: "wordpress", img: "17.png", link:"https://kurdish.iwings-digital.com/" },
-        ];
 
         // Typewriter Effect
         const phrases = ["Front-End Developer", "WordPress Expert", "Next.js Specialist", "Convert figma design to wordpress"];
@@ -442,35 +528,6 @@ function filterProjects(type, btn) {
         }
         type();
 
-        // Render Skills
-        const skillsGrid = document.getElementById('skills-grid');
-        SKILLS.forEach(s => {
-            skillsGrid.innerHTML += `
-                <div class="glass-card p-6 flex flex-col items-center gap-4 hover:scale-105 transition-all duration-300 shadow-lg" style="border-bottom: 4px solid ${s.color}">
-                    <i class="${s.icon} text-5xl" style="color: ${s.color}"></i>
-                    <span class="font-bold">${s.name}</span>
-                </div>`;
-        });
-
-        // Filter Projects
-        function filterProjects(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const grid = document.getElementById('projects-grid');
-            grid.innerHTML = '';
-            PROJECTS.filter(p => type === 'all' || p.type === type).forEach(p => {
-                grid.innerHTML += `
-                    <div class="glass-card overflow-hidden group hover:-translate-y-2 transition duration-500 shadow-xl">
-                        <img src="${p.img}" class="h-48 w-full object-cover group-hover:scale-110 transition duration-700">
-                        <div class="p-6">
-                            <span class="text-blue-500 text-xs font-bold uppercase">${p.type}</span> <br/>
-                            <a href="${p.link}" class="text-xl font-bold">${p.name}</a>
-                        </div>
-                    </div>`;
-            });
-        }
-        filterProjects('all', document.querySelector('.filter-btn'));
-
         // Three.js Background
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -487,8 +544,12 @@ function filterProjects(type, btn) {
         }
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const material = new THREE.PointsMaterial({ size: 0.08, color: 0xffffff });
-        const linesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });        const points = new THREE.Points(geometry, material);
+        
+        const primaryColorHex = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+        const material = new THREE.PointsMaterial({ size: 0.08, color: primaryColorHex });
+        const linesMaterial = new THREE.LineBasicMaterial({ color: primaryColorHex, transparent: true, opacity: 0.2 });
+        
+        const points = new THREE.Points(geometry, material);
         scene.add(points);
         const linesGeometry = new THREE.BufferGeometry();
         let linesMesh = new THREE.LineSegments(linesGeometry, linesMaterial);
@@ -532,8 +593,6 @@ function filterProjects(type, btn) {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
-            material.color.set(isDark ? 0xffffff : 0x3b82f6);
-            linesMaterial.color.set(isDark ? 0xffffff : 0x3b82f6);
         });
 
         window.addEventListener('resize', () => {
@@ -541,56 +600,48 @@ function filterProjects(type, btn) {
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-//contact form
+
+        // Contact Form
         const contactForm = document.getElementById('contact-form');
-const successMsg = document.getElementById('success-msg');
-const submitBtn = document.getElementById('submit-btn');
-const btnText = document.getElementById('btn-text');
+        const successMsg = document.getElementById('success-msg');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
 
-if (contactForm) {
-    contactForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // تغيير حالة الزر لمنع التكرار
-        submitBtn.disabled = true;
-        btnText.textContent = "Sending...";
-
-        const formData = new FormData(contactForm);
-
-        try {
-            const response = await fetch(contactForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (response.ok) {
-                // نجاح الإرسال
-                contactForm.reset();
-                contactForm.classList.add('hidden');
-                successMsg.classList.remove('hidden');
-                setTimeout(() => {
-                    successMsg.classList.add('hidden');
-                    contactForm.classList.remove('hidden');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                btnText.textContent = "Sending...";
+                const formData = new FormData(contactForm);
+                try {
+                    const response = await fetch(contactForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        contactForm.reset();
+                        contactForm.classList.add('hidden');
+                        successMsg.classList.remove('hidden');
+                        setTimeout(() => {
+                            successMsg.classList.add('hidden');
+                            contactForm.classList.remove('hidden');
+                            resetBtn();
+                        }, 5000);
+                    } else {
+                        throw new Error('Server error');
+                    }
+                } catch (error) {
+                    alert("حدث خطأ أثناء الإرسال.");
                     resetBtn();
-                }, 5000);
-            } else {
-                // فشل من جهة الخادم
-                throw new Error('Server error');
-            }
-        } catch (error) {
-            // فشل في الاتصال أو خطأ ما
-            alert("حدث خطأ أثناء الإرسال. يرجى التأكد من تفعيل خدمة Formspree من إيميلك.");
-            resetBtn();
+                }
+            });
         }
-    });
-}
 
-// دالة لإعادة الزر لحالته الطبيعية
-function resetBtn() {
-    submitBtn.disabled = false;
-    btnText.textContent = "Send Message";
-}
+        function resetBtn() {
+            submitBtn.disabled = false;
+            btnText.textContent = "Send Message";
+        }
     </script>
 </body>
 </html>
